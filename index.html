@@ -12,9 +12,16 @@
     <!-- Custom CSS -->
     <style>
         :root {
-            --gradient-primary: linear-gradient(135deg, rgb(147 51 234), rgb(168 85 247));
-            --gradient-hero: linear-gradient(135deg, rgb(147 51 234) 0%, rgb(139 92 246) 50%, rgb(196 181 253) 100%);
-            --shadow-glow: 0 0 40px rgba(147, 51, 234, 0.3);
+            --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
+            --gradient-hero: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            --gradient-card: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+            --shadow-glow: 0 20px 40px rgba(139, 92, 246, 0.15);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            min-height: 100vh;
         }
         
         .bg-gradient-primary {
@@ -25,8 +32,16 @@
             background: var(--gradient-hero);
         }
         
+        .bg-gradient-card {
+            background: var(--gradient-card);
+        }
+        
         .shadow-glow {
             box-shadow: var(--shadow-glow);
+        }
+        
+        .shadow-card {
+            box-shadow: var(--shadow-card);
         }
         
         .bg-gradient-hero-text {
@@ -36,54 +51,90 @@
             -webkit-text-fill-color: transparent;
         }
         
-        .animate-spin {
-            animation: spin 1s linear infinite;
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 1rem;
         }
         
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
         }
         
-        .card {
-            background: rgb(15 23 42);
-            border: 1px solid rgb(51 65 85);
-            border-radius: 0.75rem;
+        .animate-pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+            100% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
         }
         
         .input {
-            background: rgb(30 41 59);
-            border: 1px solid rgb(51 65 85);
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
             color: white;
             width: 100%;
+            transition: all 0.3s ease;
         }
         
         .input:focus {
             outline: none;
-            border-color: rgb(147 51 234);
-            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+            border-color: rgb(139, 92, 246);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            background: rgba(30, 41, 59, 1);
         }
         
         .select {
-            background: rgb(30 41 59);
-            border: 1px solid rgb(51 65 85);
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
             color: white;
             width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .select:focus {
+            outline: none;
+            border-color: rgb(139, 92, 246);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
         
         .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
         }
         
         .btn-primary {
@@ -93,43 +144,48 @@
         }
         
         .btn-primary:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.25);
         }
         
         .btn-outline {
             background: transparent;
-            border: 1px solid rgb(51 65 85);
+            border: 2px solid rgba(139, 92, 246, 0.5);
             color: white;
         }
         
         .btn-outline:hover {
-            background: rgb(30 41 59);
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgb(139, 92, 246);
+            transform: translateY(-1px);
         }
         
         .badge {
             display: inline-flex;
             align-items: center;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.5rem;
             font-size: 0.875rem;
-            background: rgb(30 41 59);
-            color: rgb(148 163 184);
-            border: 1px solid rgb(51 65 85);
+            font-weight: 500;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.1));
+            color: rgb(196, 181, 253);
+            border: 1px solid rgba(139, 92, 246, 0.3);
         }
         
         .toast {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background: rgb(15 23 42);
-            border: 1px solid rgb(51 65 85);
-            border-radius: 0.5rem;
-            padding: 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
             color: white;
             z-index: 1000;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transform: translateX(100%);
-            transition: transform 0.3s;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateX(120%);
+            transition: transform 0.4s ease;
         }
         
         .toast.show {
@@ -137,129 +193,264 @@
         }
         
         .toast.success {
-            border-color: rgb(34 197 94);
+            border-color: rgb(34, 197, 94);
         }
         
         .toast.error {
-            border-color: rgb(239 68 68);
+            border-color: rgb(239, 68, 68);
+        }
+        
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        
+        .platform-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .platform-card:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgb(139, 92, 246);
+            transform: translateY(-2px);
+        }
+        
+        .platform-card.selected {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgb(139, 92, 246);
+        }
+        
+        .content-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .content-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+        }
+        
+        .sparkles {
+            background: linear-gradient(-45deg, #667EEA, #764BA2, #667EEA, #764BA2);
+            background-size: 400% 400%;
+            animation: sparkle 3s ease-in-out infinite;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: loading-dots 1.4s ease-in-out infinite both;
+        }
+        
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes loading-dots {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen">
-    <div class="container mx-auto p-4 max-w-6xl">
+<body class="text-white min-h-screen">
+    <!-- Animated Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
+    </div>
+
+    <div class="relative z-10 container mx-auto p-6 max-w-7xl">
         <!-- Header -->
-        <div class="text-center space-y-4 mb-8">
-            <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-hero rounded-full text-white">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="text-center space-y-6 mb-12">
+            <div class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-hero rounded-full text-white shadow-glow animate-pulse-glow">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
-                <span class="font-medium">AI Content Creator</span>
+                <span class="font-semibold text-lg">AI Content Creator</span>
             </div>
-            <h1 class="text-4xl font-bold bg-gradient-hero-text">
+            
+            <h1 class="text-6xl font-bold sparkles mb-4">
                 Content Writing Assistant
             </h1>
-            <p class="text-lg text-slate-400 max-w-2xl mx-auto">
-                Generate ready-to-publish content for social media, blogs, newsletters, and video scripts with AI
+            
+            <p class="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Generate ready-to-publish content for social media, blogs, newsletters, and video scripts with the power of AI
             </p>
+            
+            <!-- Social Media Icons -->
+            <div class="flex justify-center gap-6 mt-8">
+                <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </div>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8">
+        <div class="grid xl:grid-cols-2 gap-8">
             <!-- Input Form -->
-            <div class="card p-6 shadow-glow">
-                <div class="mb-6">
-                    <h2 class="text-xl font-semibold flex items-center gap-2 mb-2">
-                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
+            <div class="glass-card p-8 shadow-card">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
                         Content Generator
                     </h2>
-                    <p class="text-slate-400">Fill in the details below to generate amazing content</p>
+                    <p class="text-slate-300 text-lg">Fill in the details below to generate amazing content</p>
                 </div>
 
                 <form id="contentForm" class="space-y-6">
                     <!-- Task Type -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Task Type</label>
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-200">Task Type</label>
                         <select id="task" class="select">
-                            <option value="Social Caption">Social Caption</option>
+                            <option value="Social Caption"> Social Caption</option>
                             <option value="Multi-Platform">Multi-Platform</option>
-                            <option value="Blog Outline">Blog Outline</option>
-                            <option value="Article">Article</option>
-                            <option value="Script">Script</option>
+                            <option value="Blog Outline"> Blog Outline</option>
+                            <option value="Article"> Article</option>
+                            <option value="Script"> Script</option>
                             <option value="Headline">Headline</option>
-                            <option value="Meta">Meta</option>
-                            <option value="Polish">Polish</option>
+                            <option value="Meta"> Meta</option>
+                            <option value="Polish"> Polish</option>
                         </select>
                     </div>
 
                     <!-- Context -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Context</label>
-                        <textarea id="context" class="input min-h-[100px]" placeholder="Describe what you want to create content about..." required></textarea>
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-200">Context</label>
+                        <textarea id="context" class="input min-h-[120px] resize-none" placeholder="Describe what you want to create content about..." required></textarea>
                     </div>
 
-                    <!-- Platform, Tone, Length -->
+                    <!-- Platform Selection -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-200">Platform</label>
+                        <div class="platform-grid">
+                            <div class="platform-card" data-platform="Instagram">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-pink-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                                <div class="text-xs font-medium">Instagram</div>
+                            </div>
+                            <div class="platform-card selected" data-platform="LinkedIn">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                <div class="text-xs font-medium">LinkedIn</div>
+                            </div>
+                            <div class="platform-card" data-platform="Twitter">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-sky-400" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                                <div class="text-xs font-medium">Twitter</div>
+                            </div>
+                            <div class="platform-card" data-platform="TikTok">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                                <div class="text-xs font-medium">TikTok</div>
+                            </div>
+                            <div class="platform-card" data-platform="YouTube">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                <div class="text-xs font-medium">YouTube</div>
+                            </div>
+                            <div class="platform-card" data-platform="Generic">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                <div class="text-xs font-medium">Generic</div>
+                            </div>
+                        </div>
+                        <select id="platform" class="select hidden">
+                            <option value="Instagram">Instagram</option>
+                            <option value="LinkedIn" selected>LinkedIn</option>
+                            <option value="Twitter">Twitter</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="Generic">Generic</option>
+                        </select>
+                    </div>
+
+                    <!-- Tone, Length, Variations -->
                     <div class="grid grid-cols-3 gap-4">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium">Platform</label>
-                            <select id="platform" class="select">
-                                <option value="Instagram">Instagram</option>
-                                <option value="LinkedIn">LinkedIn</option>
-                                <option value="Twitter">Twitter</option>
-                                <option value="TikTok">TikTok</option>
-                                <option value="YouTube">YouTube</option>
-                                <option value="Generic">Generic</option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium">Tone</label>
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-200">Tone</label>
                             <select id="tone" class="select">
-                                <option value="Friendly">Friendly</option>
-                                <option value="Professional">Professional</option>
-                                <option value="Witty">Witty</option>
-                                <option value="Inspirational">Inspirational</option>
-                                <option value="Educational">Educational</option>
-                                <option value="Casual">Casual</option>
+                                <option value="Friendly"> Friendly</option>
+                                <option value="Professional"> Professional</option>
+                                <option value="Witty"> Witty</option>
+                                <option value="Inspirational"> Inspirational</option>
+                                <option value="Educational"> Educational</option>
+                                <option value="Casual"> Casual</option>
                             </select>
                         </div>
 
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium">Length</label>
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-200">Length</label>
                             <select id="length" class="select">
-                                <option value="Short">Short</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Long">Long</option>
+                                <option value="Short"> Short</option>
+                                <option value="Medium"> Medium</option>
+                                <option value="Long"> Long</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-200">Variations</label>
+                            <select id="variations" class="select">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
                             </select>
                         </div>
                     </div>
 
                     <!-- Keywords -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Keywords (comma-separated)</label>
-                        <input type="text" id="keywords" class="input" placeholder="AI, content creation, social media...">
-                    </div>
-
-                    <!-- Variations -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Number of Variations</label>
-                        <select id="variations" class="select">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-200">Keywords (comma-separated)</label>
+                        <input type="text" id="keywords" class="input" placeholder="AI, content creation, social media, marketing...">
                     </div>
 
                     <!-- Generate Button -->
-                    <button type="submit" id="generateBtn" class="btn btn-primary w-full text-lg py-3">
-                        <svg id="sparkles" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="submit" id="generateBtn" class="btn btn-primary w-full text-lg py-4">
+                        <svg id="sparkles" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
-                        <svg id="spinner" class="w-5 h-5 animate-spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
+                        <div id="spinner" class="loading-dots hidden">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                         <span id="btnText">Generate Content</span>
                     </button>
                 </form>
@@ -267,11 +458,14 @@
 
             <!-- Results -->
             <div id="resultsContainer" class="space-y-6">
-                <div class="card p-20 text-center">
-                    <svg class="mx-auto h-12 w-12 text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    <p class="text-slate-400">Generated content will appear here</p>
+                <div class="content-card text-center py-20">
+                    <div class="animate-float">
+                        <svg class="mx-auto h-16 w-16 text-slate-500 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-300 mb-2">Ready to Create Magic?</h3>
+                    <p class="text-slate-400">Generated content will appear here like magic ✨</p>
                 </div>
             </div>
         </div>
@@ -281,16 +475,39 @@
     <div id="toastContainer"></div>
 
     <script>
-        const OPENAI_API_KEY = OPENAI_API_KEY;
+        // OpenAI API Key (Replace with your actual key)
+        const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY_HERE';
         
         let generatedContent = null;
+        let selectedPlatform = 'LinkedIn';
 
+        // Platform selection
+        document.querySelectorAll('.platform-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedPlatform = card.dataset.platform;
+                document.getElementById('platform').value = selectedPlatform;
+            });
+        });
+
+        // Toast functionality
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.innerHTML = `
-                <div class="font-medium">${type === 'success' ? 'Success!' : 'Error!'}</div>
-                <div class="text-sm text-slate-300">${message}</div>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center ${type === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}">
+                        ${type === 'success' 
+                            ? '<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+                            : '<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
+                        }
+                    </div>
+                    <div>
+                        <div class="font-semibold">${type === 'success' ? 'Success!' : 'Error!'}</div>
+                        <div class="text-sm text-slate-300">${message}</div>
+                    </div>
+                </div>
             `;
             
             document.getElementById('toastContainer').appendChild(toast);
@@ -299,9 +516,10 @@
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, 4000);
         }
 
+        // Copy to clipboard
         async function copyToClipboard(text, elementId) {
             try {
                 await navigator.clipboard.writeText(text);
@@ -311,11 +529,12 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
+                    <span>Copied!</span>
                 `;
                 setTimeout(() => {
                     copyBtn.innerHTML = originalHTML;
                 }, 2000);
-                showToast('Content copied to clipboard!');
+                showToast('Content copied to clipboard! 📋');
             } catch (error) {
                 showToast('Failed to copy content', 'error');
             }
@@ -415,24 +634,34 @@ Generate content now following all the rules above. Return ONLY the JSON object.
 
             // Summary
             html += `
-                <div class="card p-6">
-                    <h3 class="text-lg font-semibold text-purple-400 mb-3">Summary</h3>
-                    <p class="text-white">${content.summary}</p>
-                    ${content.safety.needs_verification ? '<span class="badge mt-2">⚠️ Needs Verification</span>' : ''}
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Content Summary
+                    </h3>
+                    <p class="text-white text-lg leading-relaxed">${content.summary}</p>
+                    ${content.safety.needs_verification ? '<div class="mt-4"><span class="badge">⚠️ Needs Verification</span></div>' : ''}
                 </div>
             `;
 
             // SEO
             html += `
-                <div class="card p-6">
-                    <h3 class="text-lg font-semibold text-purple-400 mb-3">SEO Suggestions</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-sm font-medium text-slate-300">Headline</label>
-                            <p class="text-white">${content.seo.suggested_headline}</p>
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        SEO Optimization
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-800/50 rounded-lg">
+                            <label class="text-sm font-semibold text-slate-300 mb-2 block">Suggested Headline</label>
+                            <p class="text-white font-medium">${content.seo.suggested_headline}</p>
                         </div>
-                        <div>
-                            <label class="text-sm font-medium text-slate-300">Meta Description</label>
+                        <div class="p-4 bg-slate-800/50 rounded-lg">
+                            <label class="text-sm font-semibold text-slate-300 mb-2 block">Meta Description</label>
                             <p class="text-white">${content.seo.meta_description}</p>
                         </div>
                     </div>
@@ -440,21 +669,27 @@ Generate content now following all the rules above. Return ONLY the JSON object.
             `;
 
             // Variations
-            content.variations.forEach((variation) => {
+            content.variations.forEach((variation, index) => {
                 html += `
-                    <div class="card p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-purple-400">${variation.title}</h3>
-                            <button id="copy-${variation.id}" class="btn btn-outline" onclick="copyToClipboard('${variation.text.replace(/'/g, "\\'")}', '${variation.id}')">
+                    <div class="content-card">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                                <div class="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                    ${index + 1}
+                                </div>
+                                ${variation.title}
+                            </h3>
+                            <button id="copy-${variation.id}" class="btn btn-outline" onclick="copyToClipboard(\`${variation.text.replace(/`/g, '\\`')}\`, '${variation.id}')">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                 </svg>
+                                <span>Copy</span>
                             </button>
                         </div>
                         
-                        <div class="space-y-4">
-                            <div class="prose max-w-none text-white">
-                                <p class="whitespace-pre-wrap">${variation.text}</p>
+                        <div class="space-y-6">
+                            <div class="p-6 bg-slate-900/50 rounded-xl border border-slate-700">
+                                <p class="text-white text-lg leading-relaxed whitespace-pre-wrap">${variation.text}</p>
                             </div>
                             
                             <div class="flex flex-wrap gap-2">
@@ -462,15 +697,27 @@ Generate content now following all the rules above. Return ONLY the JSON object.
                             </div>
 
                             ${variation.cta ? `
-                                <div class="p-3 bg-slate-800 rounded-lg">
-                                    <label class="text-xs font-medium text-slate-300">Call to Action</label>
-                                    <p class="text-sm text-white">${variation.cta}</p>
+                                <div class="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
+                                    <label class="text-xs font-semibold text-purple-300 mb-2 block">💡 Call to Action</label>
+                                    <p class="text-sm text-white font-medium">${variation.cta}</p>
                                 </div>
                             ` : ''}
 
-                            <div class="flex justify-between text-xs text-slate-400">
-                                <span>Characters: ${variation.character_count}</span>
-                                ${variation.notes_for_designer ? `<span>Designer Notes: ${variation.notes_for_designer}</span>` : ''}
+                            <div class="flex justify-between items-center text-xs text-slate-400 pt-4 border-t border-slate-700">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                    </svg>
+                                    ${variation.character_count} characters
+                                </span>
+                                ${variation.notes_for_designer ? `
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                        </svg>
+                                        ${variation.notes_for_designer}
+                                    </span>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -478,6 +725,9 @@ Generate content now following all the rules above. Return ONLY the JSON object.
             });
 
             container.innerHTML = html;
+            
+            // Scroll to results
+            container.scrollIntoView({ behavior: 'smooth' });
         }
 
         // Form submission
@@ -487,7 +737,7 @@ Generate content now following all the rules above. Return ONLY the JSON object.
             const formData = {
                 task: document.getElementById('task').value,
                 context: document.getElementById('context').value,
-                platform: document.getElementById('platform').value,
+                platform: selectedPlatform,
                 keywords: document.getElementById('keywords').value,
                 tone: document.getElementById('tone').value,
                 length: document.getElementById('length').value,
@@ -498,6 +748,11 @@ Generate content now following all the rules above. Return ONLY the JSON object.
 
             if (!formData.context.trim()) {
                 showToast('Please provide context for content generation.', 'error');
+                return;
+            }
+
+            if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+                showToast('Please add your OpenAI API key to use this feature.', 'error');
                 return;
             }
 
@@ -516,7 +771,7 @@ Generate content now following all the rules above. Return ONLY the JSON object.
                 const content = await generateContent(formData);
                 generatedContent = content;
                 renderResults(content);
-                showToast(`Successfully generated ${content.variations.length} variations!`);
+                showToast(` Successfully generated ${content.variations.length} content variations!`);
             } catch (error) {
                 console.error('Error generating content:', error);
                 showToast(error.message || 'Failed to generate content. Please try again.', 'error');
