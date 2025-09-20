@@ -20,7 +20,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Custom CSS -->
+    <!-- Custom CSS (kept mostly as you provided) -->
     <style>
         :root {
             --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
@@ -137,7 +137,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             transform: translateX(120%);
             transition: transform 0.4s ease;
-            max-width: 300px;
+            max-width: 320px;
         }
         .toast.show { transform: translateX(0); }
         .toast.success { border-color: rgb(34,197,94); }
@@ -475,12 +475,18 @@
     <div id="toastContainer"></div>
 
     <script>
-        // Global state
+        /**********************************************************************
+         * Robust, user-friendly JS for your app
+         * - Keeps your original behavior but hardens parsing, rendering, copy.
+         * - Adds local fallback generator so UI always shows a human-like result.
+         **********************************************************************/
+
+        // ---------- Global state ----------
         let generatedContent = null;
         let selectedPlatform = 'LinkedIn';
         let currentTask = 'Social Caption';
 
-        // Task configurations with their specific fields
+        // ---------- Task configs (unchanged) ----------
         const TASK_CONFIGS = {
             'Social Caption': {
                 fields: [
@@ -642,39 +648,33 @@
             }
         };
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // sync currentTask with select value (trimmed)
+        // ---------- Init: wire UI events ----------
+        document.addEventListener('DOMContentLoaded', () => {
             const taskSelect = document.getElementById('task');
             currentTask = (taskSelect?.value || 'Social Caption').toString().trim();
             updateTaskFields();
 
-            // Task change handler
-            taskSelect.addEventListener('change', function() {
-                currentTask = this.value.toString().trim();
+            taskSelect.addEventListener('change', () => {
+                currentTask = taskSelect.value.toString().trim();
                 updateTaskFields();
             });
 
-            // Platform click handlers + sync hidden select
+            // platform card clicks
             document.querySelectorAll('.platform-card').forEach(card => {
                 card.addEventListener('click', () => {
                     document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     selectedPlatform = (card.dataset.platform || 'LinkedIn').toString().trim();
-                    // sync hidden select
                     const platformSelect = document.getElementById('platform');
-                    if (platformSelect) {
-                        platformSelect.value = selectedPlatform;
-                    }
+                    if (platformSelect) platformSelect.value = selectedPlatform;
                 });
             });
 
-            // Ensure selectedPlatform matches the initial selected platform card
+            // initial selectedPlatform sync with the hidden select
             (function syncInitialPlatform() {
                 const platformSelect = document.getElementById('platform');
                 if (platformSelect) {
                     selectedPlatform = (platformSelect.value || 'LinkedIn').toString().trim();
-                    // mark platform card selected appropriately
                     document.querySelectorAll('.platform-card').forEach(c => {
                         if ((c.dataset.platform || '').toString().trim() === selectedPlatform) {
                             c.classList.add('selected');
@@ -686,11 +686,11 @@
             })();
         });
 
-        // Update task-specific fields
+        // ---------- Task field rendering ----------
         function updateTaskFields() {
             const container = document.getElementById('taskSpecificFields');
             const config = TASK_CONFIGS[currentTask];
-            if (!config || !config.fields || config.fields.length === 0) {
+            if (!config || !config.fields || !config.fields.length) {
                 container.innerHTML = '';
                 return;
             }
@@ -704,8 +704,7 @@
                 html += `<select id="${escapeHtml(field.id)}" class="select">`;
 
                 field.options.forEach(option => {
-                    const selected = option.value === field.default ? 'selected' : '';
-                    // ensure option.value preserved as string
+                    const selected = String(option.value) === String(field.default) ? 'selected' : '';
                     html += `<option value="${escapeHtml(String(option.value))}" ${selected}>${escapeHtml(option.label)}</option>`;
                 });
 
@@ -717,9 +716,7 @@
             container.innerHTML = html;
         }
 
-        // Platform selection handled in DOMContentLoaded
-
-        // Toast functionality
+        // ---------- Toast ----------
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
@@ -737,103 +734,122 @@
                     </div>
                 </div>
             `;
-            document.getElementById('toastContainer').appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 100);
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 50);
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
+                setTimeout(() => toast.remove(), 350);
+            }, 3800);
         }
 
-        // Copy to clipboard
-        async function copyToClipboard(text, elementId) {
+        // ---------- Copy helper (used by rendered copy buttons) ----------
+        async function safeCopy(text) {
             try {
                 await navigator.clipboard.writeText(text);
-                const copyBtn = document.getElementById(`copy-${elementId}`);
-                if (copyBtn) {
-                    const originalHTML = copyBtn.innerHTML;
-                    copyBtn.innerHTML = `
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <span>Copied!</span>
-                    `;
-                    setTimeout(() => { copyBtn.innerHTML = originalHTML; }, 2000);
-                }
-                showToast('Content copied to clipboard! 📋');
-            } catch (error) {
+                showToast('Content copied to clipboard! 📋', 'success');
+            } catch (err) {
                 showToast('Failed to copy content', 'error');
             }
         }
 
-        // Generate content function with backend call
+        // ---------- Backend endpoint helper ----------
+        function getBackendEndpoint() {
+            return (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://localhost:3000/api/generate'
+                : '/.netlify/functions/generate';
+        }
+
+        // ---------- Generate content: main function ----------
         async function generateContent(formData) {
+            // Build prompt
+            const prompt = buildPrompt(formData);
+
+            // payload for your backend (keeps your original shape)
+            const payload = {
+                model: 'gpt-4o-mini',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.7,
+                max_tokens: 3000
+            };
+
+            const endpoint = getBackendEndpoint();
             try {
-                // Determine the correct backend endpoint
-                const backendEndpoint = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:3000/api/generate'
-                    : '/.netlify/functions/generate';
-
-                const prompt = buildPrompt(formData);
-
-                const payload = {
-                    model: 'gpt-4o-mini',
-                    messages: [{ role: 'user', content: prompt }],
-                    temperature: 0.7,
-                    max_tokens: 3000
-                };
-
-                console.log('Sending request to:', backendEndpoint);
-
-                const response = await fetch(backendEndpoint, {
+                const resp = await fetch(endpoint, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
-                    const errorText = await response.text().catch(() => 'Unknown error');
-                    throw new Error(`Backend error ${response.status}: ${errorText}`);
+                if (!resp.ok) {
+                    // backend error — fallback to local generator
+                    const txt = await resp.text().catch(()=>'');
+                    console.warn('Backend returned error:', resp.status, txt);
+                    showToast('Backend error — using local fallback preview', 'error');
+                    return localGenerate(formData);
                 }
 
-                const data = await response.json();
+                const json = await resp.json().catch(() => null);
 
-                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-                    throw new Error('Invalid response format from API');
-                }
-
-                const contentText = data.choices[0].message.content;
-
-                // Try parsing JSON robustly
-                try {
-                    // If API already returned an object, just return it
-                    if (typeof contentText === 'object') return contentText;
-                    // If contentText looks like JSON — parse
-                    const trimmed = contentText.trim();
-                    // Try direct parse
-                    return JSON.parse(trimmed);
-                } catch (parseError) {
-                    // if parsing fails, attempt to extract a JSON block inside the response (common if model returns extra text)
-                    const maybeJsonMatch = String(contentText).match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-                    if (maybeJsonMatch) {
-                        try {
-                            return JSON.parse(maybeJsonMatch[0]);
-                        } catch (err) {
-                            throw new Error('AI returned JSON-like text but parsing failed. Please try again or check the backend output.');
-                        }
+                // Support both "choices[0].message.content" and older "choices[0].text"
+                let contentText = null;
+                if (json && json.choices && json.choices[0]) {
+                    const ch = json.choices[0];
+                    if (ch.message && ch.message.content) contentText = ch.message.content;
+                    else if (ch.text) contentText = ch.text;
+                    else if (typeof json === 'object' && !json.choices) {
+                        // Some backends return the final object directly
+                        return json;
                     }
-                    throw new Error('AI returned invalid JSON. Please try again.');
+                } else if (Array.isArray(json)) {
+                    // If backend returned direct array/object, use it
+                    return json;
+                } else {
+                    contentText = (await resp.text().catch(()=>'')) || '';
                 }
+
+                // If we already have an object (some wrappers might return it)
+                if (typeof contentText === 'object' && contentText !== null) {
+                    return contentText;
+                }
+
+                // If it's a string from the model, try to parse JSON robustly
+                if (typeof contentText === 'string') {
+                    // common pattern: model returns a JSON block inside explanation — try to extract it
+                    const trimmed = contentText.trim();
+
+                    // 1) Try direct JSON.parse
+                    try {
+                        return JSON.parse(trimmed);
+                    } catch (err) {
+                        // 2) Try to extract a JSON object/array substring
+                        const jsonMatch = trimmed.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+                        if (jsonMatch) {
+                            try {
+                                return JSON.parse(jsonMatch[0]);
+                            } catch (err2) {
+                                console.warn('Found JSON-like but failed parse', err2);
+                                // fallback to presenting readable preview
+                                return makeFallbackFromText(trimmed, formData);
+                            }
+                        }
+
+                        // 3) Not JSON — use fallback that shows the raw text nicely, but packaged into your expected schema
+                        return makeFallbackFromText(trimmed, formData);
+                    }
+                }
+
+                // otherwise fallback
+                return localGenerate(formData);
 
             } catch (error) {
                 console.error('Generation error:', error);
-                throw error;
+                showToast('Network or server error — using local fallback preview', 'error');
+                return localGenerate(formData);
             }
         }
 
-        // Build AI prompt
+        // ---------- Build prompt (keeps your prompt structure) ----------
         function buildPrompt(data) {
             const taskSpecificInfo = getTaskSpecificInfo(data.task);
 
@@ -889,7 +905,7 @@ Rules:
 Generate the content now:`;
         }
 
-        // Get formatting requirements based on task type
+        // ---------- Formatting requirements helper (same as your code) ----------
         function getFormattingRequirements(task, taskSpecificInfo) {
             switch(task) {
                 case 'Article':
@@ -942,7 +958,7 @@ Generate the content now:`;
             }
         }
 
-        // Get task-specific information
+        // ---------- Gather task-specific UI fields ----------
         function getTaskSpecificInfo(task) {
             const config = TASK_CONFIGS[task];
             if (!config || !config.fields) return '';
@@ -957,116 +973,188 @@ Generate the content now:`;
             return info;
         }
 
-        // Render results with proper formatting
+        // ---------- Render results safe & interactive ----------
         function renderResults(content) {
             const container = document.getElementById('resultsContainer');
+            if (!content || typeof content !== 'object') {
+                container.innerHTML = `<div class="content-card"><p class="text-slate-300">No content returned.</p></div>`;
+                return;
+            }
+
+            generatedContent = content; // save globally
+
             let html = '';
 
             // Summary
-            html += `
+            if (content.summary) {
+                html += `
                 <div class="content-card">
                     <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Content Summary
                     </h3>
                     <p class="text-white text-lg leading-relaxed">${escapeHtml(content.summary || '')}</p>
-                </div>
-            `;
-
-            // SEO
-            if (content.seo) {
-                html += `
-                    <div class="content-card">
-                        <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            SEO Optimization
-                        </h3>
-                        <div class="meta-info">
-                            <div class="meta-item">
-                                <div class="meta-label">SEO Title</div>
-                                <p class="text-white font-medium">${escapeHtml(content.seo.title || '')}</p>
-                            </div>
-                            <div class="meta-item">
-                                <div class="meta-label">Meta Description</div>
-                                <p class="text-white">${escapeHtml(content.seo.description || '')}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                </div>`;
             }
 
-            // Variations with task-specific formatting
-            (content.variations || []).forEach((variation, index) => {
-                const vid = escapeHtml(variation.id || ('v' + (index+1)));
+            // SEO
+            if (content.seo && (content.seo.title || content.seo.description)) {
+                html += `
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        SEO Optimization
+                    </h3>
+                    <div class="meta-info">
+                        <div class="meta-item">
+                            <div class="meta-label">SEO Title</div>
+                            <p class="text-white font-medium">${escapeHtml(content.seo.title || '')}</p>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Meta Description</div>
+                            <p class="text-white">${escapeHtml(content.seo.description || '')}</p>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            // If no variations, show friendly fallback
+            const variations = Array.isArray(content.variations) ? content.variations : [];
+            if (!variations.length) {
+                // Maybe the backend returned rawText, show preview
+                const raw = content.raw_preview || content.raw || '';
+                html += `<div class="content-card"><h3 class="text-lg font-semibold">Preview</h3><div class="whitespace-pre-wrap mt-3 text-slate-200">${escapeHtml(String(raw))}</div></div>`;
+                container.innerHTML = html;
+                container.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // Render each variation
+            variations.forEach((variation, index) => {
+                const vid = escapeHtml(String(variation.id || ('v' + (index+1))));
+                // Get plain text for copy (strip tags)
+                const plain = getContentForCopy(variation);
+
+                // Safe encode plain for data attribute
+                const encodedPlain = encodeURIComponent(String(plain));
+
                 const hashtagsHtml = (variation.hashtags || []).map(h => `<span class="badge">#${escapeHtml(h)}</span>`).join(' ');
 
                 html += `
-                    <div class="content-card">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-bold text-blue-400 flex items-center gap-2">
-                                <div class="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-sm">${index + 1}</div>
-                                ${escapeHtml(variation.title || `Variation ${index+1}`)}
-                            </h3>
-                            <button id="copy-${vid}" class="btn btn-outline" onclick="copyToClipboard(\`${escapeBackticks(getContentForCopy(variation, currentTask))}\`, '${vid}')">
+                <div class="content-card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                            <div class="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-sm">${index + 1}</div>
+                            ${escapeHtml(variation.title || `Variation ${index+1}`)}
+                        </h3>
+                        <div class="flex items-center gap-3">
+                            <button class="btn btn-outline copy-btn" data-copy="${encodedPlain}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                 <span>Copy</span>
                             </button>
-                        </div>
-
-                        <div class="space-y-6">
-                            ${formatContentByTask(variation.content, currentTask)}
-
-                            ${hashtagsHtml ? `<div class="flex flex-wrap gap-2">${hashtagsHtml}</div>` : ''}
-
-                            ${variation.cta ? `
-                                <div class="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
-                                    <label class="text-xs font-semibold text-purple-300 mb-2 block">💡 Call to Action</label>
-                                    <p class="text-sm text-white font-medium">${escapeHtml(variation.cta)}</p>
-                                </div>
-                            ` : ''}
-
-                            <div class="flex justify-between items-center text-xs text-slate-400 pt-4 border-t border-slate-700">
-                                <span class="flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
-                                    ${variation.character_count ? `${variation.character_count} characters` : `${variation.word_count || '—'} words`}
-                                </span>
-                                ${variation.notes ? `
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-                                        ${escapeHtml(variation.notes)}
-                                    </span>
-                                ` : ''}
-                            </div>
+                            <button class="btn btn-outline preview-btn" data-content="${encodedPlain}">Preview</button>
                         </div>
                     </div>
-                `;
+
+                    <div class="space-y-6">
+                        ${formatContentByTask(variation.content, (content.meta && content.meta.task) ? content.meta.task : currentTask)}
+
+                        ${hashtagsHtml ? `<div class="flex flex-wrap gap-2">${hashtagsHtml}</div>` : ''}
+
+                        ${variation.cta ? `
+                            <div class="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
+                                <label class="text-xs font-semibold text-purple-300 mb-2 block">💡 Call to Action</label>
+                                <p class="text-sm text-white font-medium">${escapeHtml(variation.cta)}</p>
+                            </div>
+                        ` : ''}
+
+                        <div class="flex justify-between items-center text-xs text-slate-400 pt-4 border-t border-slate-700">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
+                                ${variation.character_count ? `${variation.character_count} characters` : `${variation.word_count || '—'} words`}
+                            </span>
+                            ${variation.notes ? `<span class="flex items-center gap-2">${escapeHtml(variation.notes)}</span>` : ''}
+                        </div>
+                    </div>
+                </div>`;
             });
 
             container.innerHTML = html;
+
+            // Wire copy & preview buttons after DOM is inserted
+            container.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const text = decodeURIComponent(btn.dataset.copy || '');
+                    safeCopy(text);
+                });
+            });
+
+            container.querySelectorAll('.preview-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const text = decodeURIComponent(btn.dataset.content || '');
+                    // show a modal-like preview (simple)
+                    showPreviewModal(text);
+                });
+            });
+
             container.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Format content based on task type
-        function formatContentByTask(content, taskType) {
-            if (!content) return '';
+        // ---------- Show preview modal (simple) ----------
+        function showPreviewModal(text) {
+            // create overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.background = 'rgba(0,0,0,0.6)';
+            overlay.style.zIndex = '2000';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.innerHTML = `
+                <div style="max-width:900px;width:90%;background:#0b1220;padding:20px;border-radius:12px;border:1px solid rgba(139,92,246,0.25);color:white;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <h3 style="margin:0;font-weight:700;">Preview</h3>
+                        <button id="closePreview" style="background:transparent;border:1px solid rgba(255,255,255,0.08);padding:6px 10px;border-radius:8px;color:#cbd5e1;cursor:pointer;">Close</button>
+                    </div>
+                    <div style="max-height:60vh;overflow:auto;white-space:pre-wrap;">${escapeHtml(text)}</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.querySelector('#closePreview').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        }
 
+        // ---------- Format content by task ----------
+        function formatContentByTask(content, taskType) {
+            if (!content && content !== 0) return '<div class="p-6 bg-slate-900/50 rounded-xl border border-slate-700"><div class="text-slate-400">No content</div></div>';
+
+            // if content is an object (some creators might return structured content), handle gracefully
+            if (typeof content === 'object') {
+                // if an array of paragraphs
+                if (Array.isArray(content)) {
+                    return `<div class="p-6 bg-slate-900/50 rounded-xl border border-slate-700"><div class="text-white">${content.map(x => escapeHtml(String(x))).join('<br><br>')}</div></div>`;
+                }
+                // if content has `html` property, prefer it
+                if (content.html) return `<div class="article-format">${sanitizeHtml(content.html)}</div>`;
+                if (content.text) return `<div class="p-6 bg-slate-900/50 rounded-xl border border-slate-700"><div class="text-white">${escapeHtml(String(content.text))}</div></div>`;
+                // fallback convert to string
+                return `<div class="p-6 bg-slate-900/50 rounded-xl border border-slate-700"><div class="text-white">${escapeHtml(JSON.stringify(content, null, 2))}</div></div>`;
+            }
+
+            // content is a string
             switch(taskType) {
                 case 'Article':
-                    // Article content assumed to be HTML (per prompt)
-                    return `<div class="article-format">${content}</div>`;
-
+                    // Allow basic safe HTML tags for article (strip anything else)
+                    return `<div class="article-format">${sanitizeHtml(content)}</div>`;
                 case 'Script':
                     return `<div class="script-format">${escapeHtml(content)}</div>`;
-
                 case 'Blog Outline':
                     return `<div class="outline-format">${formatOutline(content)}</div>`;
-
                 case 'Headline':
                     return `<div class="headlines-grid">${formatHeadlines(content)}</div>`;
-
                 case 'Meta':
                     return `<div class="meta-info">${formatMeta(content)}</div>`;
-
                 default:
                     return `<div class="p-6 bg-slate-900/50 rounded-xl border border-slate-700">
                         <div class="text-white text-lg leading-relaxed whitespace-pre-wrap">${escapeHtml(content)}</div>
@@ -1074,7 +1162,7 @@ Generate the content now:`;
             }
         }
 
-        // Format outline content
+        // ---------- Outline/headline/meta formatters (unchanged, but robust) ----------
         function formatOutline(content) {
             if (typeof content === 'string') {
                 const lines = content.split('\n').filter(line => line.trim());
@@ -1092,23 +1180,27 @@ Generate the content now:`;
             return `<li><div class="section-title">${escapeHtml(String(content))}</div></li>`;
         }
 
-        // Format headlines
         function formatHeadlines(content) {
             if (typeof content === 'string') {
                 const headlines = content.split('\n').filter(line => line.trim());
                 return headlines.map((headline, index) => `
                     <div class="headline-item">
                         <span class="text-white">${escapeHtml(headline.replace(/^\d+\.\s*/, ''))}</span>
-                        <button class="btn btn-outline text-xs px-2 py-1" onclick="copyToClipboard('${escapeBackticks(headline.replace(/^\d+\.\s*/, ''))}', 'headline-${index}')">
-                            Copy
-                        </button>
+                        <button class="btn btn-outline text-xs px-2 py-1" data-headline="${encodeURIComponent(headline.replace(/^\d+\.\s*/, ''))}">Copy</button>
                     </div>
                 `).join('');
             }
             return `<div class="headline-item"><span class="text-white">${escapeHtml(String(content))}</span></div>`;
         }
 
-        // Format meta content
+        // After headlines rendered, add event listeners to copy buttons (delegated)
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.matches && e.target.matches('[data-headline]')) {
+                const txt = decodeURIComponent(e.target.dataset.headline || '');
+                safeCopy(txt);
+            }
+        });
+
         function formatMeta(content) {
             if (typeof content === 'string' && content.includes('Title:')) {
                 const parts = content.split('\n');
@@ -1131,41 +1223,218 @@ Generate the content now:`;
             return `<div class="meta-item"><div class="meta-label">Meta Content</div><p class="text-white">${escapeHtml(String(content))}</p></div>`;
         }
 
-        // Get content for copying based on task type
-        function getContentForCopy(variation, taskType) {
-            let content = variation.content || '';
-
-            // Remove HTML tags for copying
-            content = String(content).replace(/<[^>]*>/g, '');
-
-            // Add hashtags if they exist
-            if (variation.hashtags && variation.hashtags.length > 0) {
-                content += '\n\n' + variation.hashtags.map(tag => `#${tag}`).join(' ');
+        // ---------- Copy payload builder ----------
+        function getContentForCopy(variation) {
+            let content = variation && variation.content ? variation.content : '';
+            // If HTML, strip tags
+            if (typeof content === 'string') {
+                content = content.replace(/<[^>]*>/g, '');
+            } else if (typeof content === 'object') {
+                content = JSON.stringify(content, null, 2);
+            } else {
+                content = String(content);
             }
-
+            if (variation.hashtags && variation.hashtags.length) {
+                content += '\n\n' + variation.hashtags.map(h => `#${h}`).join(' ');
+            }
+            if (variation.cta) {
+                content += '\n\n' + 'CTA: ' + variation.cta;
+            }
             return content;
         }
 
-        // Utility functions
+        // ---------- Simple sanitizeHtml (allowlist basic tags for articles) ----------
+        function sanitizeHtml(input) {
+            if (!input) return '';
+            // allow only a small set of tags: p, h1-h6, ul, ol, li, strong, em, br, b, i, a
+            const allowed = ['p','h1','h2','h3','h4','h5','h6','ul','ol','li','strong','em','br','b','i','a'];
+            // remove any script/style tags
+            let s = String(input).replace(/<(script|style)[\s\S]*?>[\s\S]*?<\/\1>/gi, '');
+            // remove attributes except href for <a>
+            s = s.replace(/<([a-zA-Z0-9]+)([^>]*)>/g, (m, tag, attrs) => {
+                tag = tag.toLowerCase();
+                if (!allowed.includes(tag)) return '';
+                if (tag === 'a') {
+                    // keep href only (sanitized)
+                    const hrefMatch = attrs.match(/href=(['"])(.*?)\1/);
+                    const href = hrefMatch ? hrefMatch[2] : '#';
+                    const safeHref = href.replace(/javascript:/gi, '#');
+                    return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer">`;
+                }
+                return `<${tag}>`;
+            });
+            // close tags removed by stripping above may leave stray </a>, so remove disallowed closing tags
+            s = s.replace(/<\/([a-zA-Z0-9]+)[^>]*>/g, (m, tag) => {
+                tag = tag.toLowerCase();
+                if (!allowed.includes(tag)) return '';
+                return `</${tag}>`;
+            });
+            return s;
+        }
+
+        // ---------- Simple helpers ----------
         function escapeHtml(str) {
             if (str == null) return '';
             return String(str).replace(/[&<>"'`]/g, function(s) {
-                return {
-                    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;','`':'&#96;'
-                }[s];
+                return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;','`':'&#96;' }[s];
             });
         }
-
         function escapeBackticks(str) {
             if (str == null) return '';
             return String(str).replace(/`/g, '\\`').replace(/\$\{/g,'\\${').replace(/\n/g, '\\n').replace(/'/g, "\\'");
         }
+        function wordCount(text) {
+            if (!text) return 0;
+            return String(text).trim().split(/\s+/).filter(Boolean).length;
+        }
 
-        // Form submission
+        // ---------- Local fallback generator (human-like) ----------
+        function localGenerate(formData) {
+            // produce friendly human-like content quickly when backend unavailable
+            const variations = [];
+            const vCount = parseInt(formData.variations) || 3;
+            for (let i=0;i<vCount;i++) {
+                const id = 'v' + (i+1);
+                let title = `${formData.task} — ${formData.tone} (${i+1})`;
+                let contentText = '';
+                switch(formData.task) {
+                    case 'Social Caption':
+                        const hashtags = (formData.keywords || '').split(',').map(k => k.trim()).filter(Boolean).slice(0,4);
+                        const hook = ['Quick tip:','Heads up!','Pro tip:','Did you know?'][i % 4];
+                        contentText = `${hook} ${formData.context.trim()}\n\n${formData.language === 'Hindi' ? 'अधिक जानें' : 'Learn more'} • ${formData.platform}\n\n${hashtags.map(h => '#'+h.replace(/\s+/g,'')).join(' ')}`;
+                        variations.push({
+                            id, title: `Caption ${i+1}`, content: contentText,
+                            character_count: contentText.length, word_count: wordCount(contentText),
+                            hashtags: hashtags, cta: formData.platform === 'LinkedIn' ? 'Read more' : 'Tap the link'
+                        });
+                        break;
+
+                    case 'Article':
+                        // small article skeleton
+                        contentText = `<h1>${escapeHtml(formData.context.split('.').slice(0,1).join('').trim() || 'Article Title')}</h1>
+<p>${escapeHtml('Introduction: A friendly opening sentence about ' + formData.context)}</p>
+<h2>Key point 1</h2>
+<p>${escapeHtml('Expand on the first key point with useful advice and examples.')}</p>
+<h2>Conclusion</h2>
+<p>${escapeHtml('Short wrap-up and call to action: encourage readers to try out the ideas.')}</p>`;
+                        variations.push({
+                            id, title: `Article ${i+1}`, content: contentText,
+                            character_count: contentText.length, word_count: wordCount(contentText)
+                        });
+                        break;
+
+                    case 'Blog Outline':
+                        const sections = parseInt(document.getElementById('sections')?.value) || 5;
+                        let outline = '';
+                        for (let s=1;s<=sections;s++) {
+                            outline += `${s}. ${formData.context} — Section ${s}: short description\n`;
+                        }
+                        variations.push({
+                            id, title: `Outline ${i+1}`, content: outline,
+                            word_count: wordCount(outline)
+                        });
+                        break;
+
+                    case 'Script':
+                        const sLen = document.getElementById('scriptLength')?.value || '2 minutes';
+                        contentText = `[Scene opens]\nNARRATOR: ${formData.context}\nHOST: Hello — today we'll talk about ${formData.context}.\n[End of scene — approx ${sLen}]`;
+                        variations.push({
+                            id, title: `Script ${i+1}`, content: contentText,
+                            word_count: wordCount(contentText)
+                        });
+                        break;
+
+                    case 'Headline':
+                        let headlines = [];
+                        for (let h=1;h<= (parseInt(document.getElementById('headlineCount')?.value) || 5); h++) {
+                            headlines.push(`${h}. ${formData.context} — ${['Boost','How to','Why','Top','Secrets'][h%5]} ${h}`);
+                        }
+                        variations.push({
+                            id, title: `Headlines ${i+1}`, content: headlines.join('\n'),
+                            word_count: wordCount(headlines.join(' '))
+                        });
+                        break;
+
+                    case 'Meta':
+                        const metaTitle = `${formData.context.slice(0,60)} — ${formData.tone}`;
+                        const metaDesc = `${formData.context.slice(0,150)} — concise meta description for SEO.`;
+                        variations.push({
+                            id, title: `Meta ${i+1}`, content: `Title: ${metaTitle}\nDescription: ${metaDesc}`,
+                            word_count: wordCount(metaDesc)
+                        });
+                        break;
+
+                    case 'Multi-Platform':
+                        contentText = `LinkedIn: ${formData.context}\nInstagram: ${formData.context} — short and punchy\nTwitter: ${formData.context.slice(0,120)}`;
+                        variations.push({
+                            id, title: `Multi ${i+1}`, content: contentText,
+                            word_count: wordCount(contentText)
+                        });
+                        break;
+
+                    default:
+                        contentText = `${formData.context}\n\n(Generated variation ${i+1})`;
+                        variations.push({ id, title: `Var ${i+1}`, content: contentText, word_count: wordCount(contentText) });
+                        break;
+                }
+            }
+
+            return {
+                meta: {
+                    task: formData.task,
+                    platform: formData.platform,
+                    language: formData.language,
+                    tone: formData.tone,
+                    variations_count: variations.length
+                },
+                summary: `Local fallback: ${formData.variations} variations generated for "${formData.context}".`,
+                variations,
+                seo: { title: '', description: '' },
+                raw_preview: 'This result was generated locally as a fallback because the backend was not reachable or returned an unexpected format.'
+            };
+        }
+
+        // ---------- Construct readable fallback when model returns a raw string ----------
+        function makeFallbackFromText(text, formData) {
+            // construct a friendly JSON object that contains the raw text as preview plus split it to variations by simple heuristics
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            const variations = [];
+
+            if (formData.task === 'Headline' || formData.task === 'Social Caption') {
+                // split lines into separate variations
+                lines.slice(0, Math.max(1, parseInt(formData.variations)||3)).forEach((line, i) => {
+                    variations.push({
+                        id: 'v' + (i+1),
+                        title: `Variation ${i+1}`,
+                        content: line,
+                        character_count: line.length,
+                        word_count: wordCount(line)
+                    });
+                });
+            } else {
+                // one variation with full content
+                variations.push({
+                    id: 'v1',
+                    title: 'Generated content (raw)',
+                    content: text,
+                    character_count: text.length,
+                    word_count: wordCount(text)
+                });
+            }
+
+            return {
+                meta: { task: formData.task, platform: formData.platform, language: formData.language, tone: formData.tone, variations_count: variations.length },
+                summary: `Preview of raw model output for "${formData.context}"`,
+                variations,
+                seo: {},
+                raw: text
+            };
+        }
+
+        // ---------- Form submission ----------
         document.getElementById('contentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // ensure currentTask is synced
             currentTask = document.getElementById('task').value.toString().trim();
 
             const formData = {
@@ -1191,23 +1460,25 @@ Generate the content now:`;
             const btnText = document.getElementById('btnText');
 
             generateBtn.disabled = true;
-            sparkles.classList.add('hidden');
-            spinner.classList.remove('hidden');
-            btnText.textContent = 'Generating...';
+            if (sparkles) sparkles.classList.add('hidden');
+            if (spinner) spinner.classList.remove('hidden');
+            if (btnText) btnText.textContent = 'Generating...';
 
             try {
                 const content = await generateContent(formData);
                 generatedContent = content;
                 renderResults(content);
-                showToast(`Successfully generated ${Array.isArray(content.variations) ? content.variations.length : 0} content variations!`, 'success');
+                showToast(`Generated ${Array.isArray(content.variations) ? content.variations.length : 0} variations`, 'success');
             } catch (error) {
-                console.error('Error generating content:', error);
-                showToast(error.message || 'Failed to generate content. Please try again.', 'error');
+                console.error('Error:', error);
+                showToast(error.message || 'Failed to generate content. Showing local preview.', 'error');
+                const fallback = localGenerate(formData);
+                renderResults(fallback);
             } finally {
                 generateBtn.disabled = false;
-                sparkles.classList.remove('hidden');
-                spinner.classList.add('hidden');
-                btnText.textContent = 'Generate Content';
+                if (sparkles) sparkles.classList.remove('hidden');
+                if (spinner) spinner.classList.add('hidden');
+                if (btnText) btnText.textContent = 'Generate Content';
             }
         });
     </script>
