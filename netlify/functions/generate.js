@@ -84,7 +84,7 @@ exports.handler = async function (event, context) {
         { role: 'user', content: requestBody.prompt }
       ],
       temperature: typeof requestBody.temperature === 'number' ? requestBody.temperature : 0.7,
-      max_tokens: requestBody.max_tokens || 2000,
+      max_tokens: requestBody.max_tokens || 3000,
       top_p: requestBody.top_p || 1,
       frequency_penalty: requestBody.frequency_penalty || 0,
       presence_penalty: requestBody.presence_penalty || 0
@@ -92,7 +92,7 @@ exports.handler = async function (event, context) {
 
     // Make request to OpenAI with timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
 
     let openaiResponse;
     try {
@@ -194,7 +194,7 @@ exports.handler = async function (event, context) {
         meta: {
           timestamp: new Date().toISOString(),
           model: requestBody.model || 'gpt-4o-mini',
-          function_version: '1.0'
+          function_version: '2.0'
         }
       })
     };
@@ -232,4 +232,4 @@ exports.handler = async function (event, context) {
       })
     };
   }
-};
+}
