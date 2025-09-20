@@ -93,7 +93,7 @@
             position: absolute;
             top: 0; left: -100%;
             width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
             transition: left 0.5s;
         }
         .btn:hover::before { left: 100%; }
@@ -102,13 +102,13 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 25px 50px rgba(139,92,246,0.25); }
 
         .btn-outline { background: transparent; border: 2px solid rgba(139,92,246,0.5); color: white; }
-        .btn-outline:hover { background: rgba(139,92,246,0.1); border-color: rgb(139,92,246); transform: translateY(-1px); }
+        .btn-outline:hover { background: rgba(139,92,246,0.06); border-color: rgb(139,92,246); transform: translateY(-1px); }
 
         .badge {
             display: inline-flex; align-items: center; padding: 0.375rem 0.75rem; border-radius: 0.5rem;
             font-size: 0.875rem; font-weight: 500;
-            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(168,85,247,0.1));
-            color: rgb(196,181,253); border: 1px solid rgba(139,92,246,0.3);
+            background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(168,85,247,0.06));
+            color: rgb(196,181,253); border: 1px solid rgba(139,92,246,0.18);
         }
 
         .toast {
@@ -131,14 +131,14 @@
             background: rgba(30,41,59,0.5); border: 1px solid rgba(139,92,246,0.2); border-radius: 0.75rem;
             padding: 1rem; text-align: center; cursor: pointer; transition: all 0.3s ease;
         }
-        .platform-card:hover { background: rgba(139,92,246,0.1); border-color: rgb(139,92,246); transform: translateY(-2px); }
-        .platform-card.selected { background: rgba(139,92,246,0.2); border-color: rgb(139,92,246); }
+        .platform-card:hover { background: rgba(139,92,246,0.06); border-color: rgb(139,92,246); transform: translateY(-2px); }
+        .platform-card.selected { background: rgba(139,92,246,0.12); border-color: rgb(139,92,246); }
 
         .content-card {
             background: rgba(15,23,42,0.8); backdrop-filter: blur(20px); border: 1px solid rgba(139,92,246,0.2);
             border-radius: 1rem; padding: 1.5rem; transition: all 0.3s ease;
         }
-        .content-card:hover { border-color: rgba(139,92,246,0.4); transform: translateY(-2px); box-shadow: 0 20px 40px rgba(139,92,246,0.1); }
+        .content-card:hover { border-color: rgba(139,92,246,0.3); transform: translateY(-2px); box-shadow: 0 20px 40px rgba(139,92,246,0.06); }
 
         .sparkles {
             background: linear-gradient(-45deg,#667EEA,#764BA2,#667EEA,#764BA2);
@@ -151,6 +151,9 @@
         .loading-dots span { width:8px; height:8px; border-radius:50%; background:currentColor; animation: loading-dots 1.4s ease-in-out infinite both; }
         .loading-dots span:nth-child(1){ animation-delay:-0.32s; } .loading-dots span:nth-child(2){ animation-delay:-0.16s; }
         @keyframes loading-dots { 0%,80%,100%{ transform:scale(0); opacity:0.5 } 40%{ transform:scale(1); opacity:1 } }
+
+        /* small helper for tiny labels */
+        .muted { color: #9CA3AF; font-size: 0.9rem; }
     </style>
 </head>
 <body class="text-white min-h-screen">
@@ -170,54 +173,55 @@
 
             <h1 class="text-6xl font-bold sparkles mb-4">Content Writing Assistant</h1>
             <p class="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                Generate ready-to-publish content for social media, blogs, newsletters, and video scripts with the power of AI
+                Generate ready-to-publish content for social media, blogs, newsletters, and video scripts. Select a task, fine-tune options, pick a language, and generate.
             </p>
-
-            <div class="flex justify-center gap-6 mt-8">
-                <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-                <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            </div>
         </div>
 
         <div class="grid xl:grid-cols-2 gap-8">
             <!-- Input Form -->
             <div class="glass-card p-8 shadow-card">
-                <div class="mb-8">
+                <div class="mb-6">
                     <h2 class="text-2xl font-bold flex items-center gap-3 mb-3">
                         <div class="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
                         Content Generator
                     </h2>
-                    <p class="text-slate-300 text-lg">Fill in the details below to generate amazing content</p>
+                    <p class="text-slate-300 text-lg">Fill in the details below to generate accurate, emoji-free content</p>
                 </div>
 
                 <form id="contentForm" class="space-y-6">
                     <!-- Task Type -->
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-slate-200">Task Type</label>
-                        <select id="task" class="select">
-                            <option value="Social Caption"> Social Caption</option>
+                        <select id="task" class="select" required>
+                            <option value="Social Caption">Social Caption</option>
                             <option value="Multi-Platform">Multi-Platform</option>
-                            <option value="Blog Outline"> Blog Outline</option>
-                            <option value="Article"> Article</option>
-                            <option value="Script"> Script</option>
+                            <option value="Blog Outline">Blog Outline</option>
+                            <option value="Article">Article</option>
+                            <option value="Script">Script</option>
                             <option value="Headline">Headline</option>
-                            <option value="Meta"> Meta</option>
-                            <option value="Polish"> Polish</option>
+                            <option value="Meta">Meta</option>
+                            <option value="Polish">Polish</option>
                         </select>
+                        <div id="taskHint" class="muted mt-2">Choose the type of content you want to generate. Additional options for each task appear below.</div>
+                    </div>
+
+                    <!-- Task-specific dynamic options -->
+                    <div id="taskOptions" class="space-y-4">
+                        <!-- dynamic fields inserted here -->
                     </div>
 
                     <!-- Context -->
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-slate-200">Context</label>
-                        <textarea id="context" class="input min-h-[120px] resize-none" placeholder="Describe what you want to create content about..." required></textarea>
+                        <textarea id="context" class="input min-h-[120px] resize-none" placeholder="Describe what you want to create content about. You can include URLs (they will be summarized)." required></textarea>
+                        <div class="muted">Tip: be as specific as possible. If you include a URL, the assistant will summarize it.</div>
                     </div>
 
                     <!-- Platform Selection -->
                     <div class="space-y-3">
-                        <label class="block text-sm font-semibold text-slate-200">Platform</label>
+                        <label class="block text-sm font-semibold text-slate-200">Primary Platform (affects formatting)</label>
                         <div class="platform-grid">
                             <div class="platform-card" data-platform="Instagram">
                                 <svg class="w-8 h-8 mx-auto mb-2 text-pink-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
@@ -240,11 +244,11 @@
                                 <div class="text-xs font-medium">YouTube</div>
                             </div>
                             <div class="platform-card" data-platform="Generic">
-                                <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
                                 <div class="text-xs font-medium">Generic</div>
                             </div>
                         </div>
-                        <select id="platform" class="select hidden">
+                        <select id="platform" class="select hidden" aria-hidden="true">
                             <option value="Instagram">Instagram</option>
                             <option value="LinkedIn" selected>LinkedIn</option>
                             <option value="Twitter">Twitter</option>
@@ -255,25 +259,25 @@
                     </div>
 
                     <!-- Tone, Length, Variations -->
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid md:grid-cols-3 gap-4">
                         <div class="space-y-3">
                             <label class="block text-sm font-semibold text-slate-200">Tone</label>
                             <select id="tone" class="select">
-                                <option value="Friendly"> Friendly</option>
-                                <option value="Professional"> Professional</option>
-                                <option value="Witty"> Witty</option>
-                                <option value="Inspirational"> Inspirational</option>
-                                <option value="Educational"> Educational</option>
-                                <option value="Casual"> Casual</option>
+                                <option value="Friendly">Friendly</option>
+                                <option value="Professional">Professional</option>
+                                <option value="Witty">Witty</option>
+                                <option value="Inspirational">Inspirational</option>
+                                <option value="Educational">Educational</option>
+                                <option value="Casual">Casual</option>
                             </select>
                         </div>
 
                         <div class="space-y-3">
                             <label class="block text-sm font-semibold text-slate-200">Length</label>
                             <select id="length" class="select">
-                                <option value="Short"> Short</option>
-                                <option value="Medium"> Medium</option>
-                                <option value="Long"> Long</option>
+                                <option value="Short">Short</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Long">Long</option>
                             </select>
                         </div>
 
@@ -289,6 +293,23 @@
                         </div>
                     </div>
 
+                    <!-- Language -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-200">Output Language</label>
+                        <select id="language" class="select">
+                            <option value="English" selected>English</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Hinglish">Hinglish</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="French">French</option>
+                            <option value="German">German</option>
+                            <option value="Portuguese">Portuguese</option>
+                            <option value="Arabic">Arabic</option>
+                            <option value="Chinese (Simplified)">Chinese (Simplified)</option>
+                            <option value="Russian">Russian</option>
+                        </select>
+                    </div>
+
                     <!-- Keywords -->
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-slate-200">Keywords (comma-separated)</label>
@@ -297,7 +318,6 @@
 
                     <!-- Generate Button -->
                     <button type="submit" id="generateBtn" class="btn btn-primary w-full text-lg py-4">
-                        <svg id="sparkles" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         <div id="spinner" class="loading-dots hidden"><span></span><span></span><span></span></div>
                         <span id="btnText">Generate Content</span>
                     </button>
@@ -310,8 +330,8 @@
                     <div class="animate-float">
                         <svg class="mx-auto h-16 w-16 text-slate-500 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-slate-300 mb-2">Ready to Create Magic?</h3>
-                    <p class="text-slate-400">Generated content will appear here like magic ✨</p>
+                    <h3 class="text-xl font-semibold text-slate-300 mb-2">Ready to Create Magic</h3>
+                    <p class="text-slate-400">Generated content will appear here. The assistant returns strict, emoji-free JSON that follows the required schema.</p>
                 </div>
             </div>
         </div>
@@ -337,28 +357,13 @@
         // The code below picks a sensible default: if running on localhost it uses a local backend,
         // otherwise it uses a relative function path (Netlify). Change as needed.
         const BACKEND_ENDPOINT = (function() {
-            // Running locally? use a typical local express server
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 return 'http://localhost:3000/api/generate';
             }
-            // Default for static deploys that use a serverless function at /.netlify/functions/generate
             return '/.netlify/functions/generate';
         })();
 
-        let generatedContent = null;
-        let selectedPlatform = 'LinkedIn';
-
-        // Platform selection
-        document.querySelectorAll('.platform-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                selectedPlatform = card.dataset.platform;
-                document.getElementById('platform').value = selectedPlatform;
-            });
-        });
-
-        // Toast functionality
+        // Helpful small utilities
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
@@ -371,8 +376,8 @@
                         }
                     </div>
                     <div>
-                        <div class="font-semibold">${type === 'success' ? 'Success!' : 'Error!'}</div>
-                        <div class="text-sm text-slate-300">${message}</div>
+                        <div class="font-semibold">${type === 'success' ? 'Success' : 'Error'}</div>
+                        <div class="text-sm text-slate-300">${escapeHtml(message)}</div>
                     </div>
                 </div>
             `;
@@ -381,13 +386,31 @@
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            }, 3500);
         }
 
-        // Copy to clipboard
+        // Escape HTML safe
+        function escapeHtml(str) {
+            if (str == null) return '';
+            return String(str).replace(/[&<>"'`]/g, function(s) {
+                return {
+                    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;','`':'&#96;'
+                }[s];
+            });
+        }
+
+        // Remove emoji characters using Unicode ranges (best-effort)
+        function stripEmojis(text) {
+            if (!text) return text;
+            // basic emoji removal pattern (covers many emoji ranges)
+            return text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C\uDC00-\uD83D\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').trim();
+        }
+
+        // Copy to clipboard, using cleaned text (no emoji)
         async function copyToClipboard(text, elementId) {
             try {
-                await navigator.clipboard.writeText(text);
+                const cleaned = stripEmojis(text || '');
+                await navigator.clipboard.writeText(cleaned);
                 const copyBtn = document.getElementById(`copy-${elementId}`);
                 if (!copyBtn) return;
                 const originalHTML = copyBtn.innerHTML;
@@ -395,58 +418,229 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <span>Copied!</span>
+                    <span>Copied</span>
                 `;
-                setTimeout(() => { copyBtn.innerHTML = originalHTML; }, 2000);
-                showToast('Content copied to clipboard! 📋');
+                setTimeout(() => { copyBtn.innerHTML = originalHTML; }, 1600);
+                showToast('Content copied to clipboard.');
             } catch (error) {
                 showToast('Failed to copy content', 'error');
             }
         }
 
+        // Platform selection handling
+        let selectedPlatform = 'LinkedIn';
+        document.querySelectorAll('.platform-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedPlatform = card.dataset.platform;
+                document.getElementById('platform').value = selectedPlatform;
+            });
+        });
+
+        // task-specific dynamic fields
+        const taskOptionsContainer = document.getElementById('taskOptions');
+
+        function renderTaskOptions(task) {
+            // default empty
+            let html = '';
+
+            if (task === 'Script') {
+                html += `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Script character target</label>
+                            <input type="number" id="scriptCharacterCount" class="input" placeholder="e.g., 1200 characters" min="50" value="800" />
+                            <div class="muted mt-1">Target total characters for the script (approx.).</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Script format</label>
+                            <select id="scriptFormat" class="select">
+                                <option value="Narration">Narration</option>
+                                <option value="Dialogue">Dialogue</option>
+                                <option value="Scene-by-scene">Scene-by-scene</option>
+                            </select>
+                            <div class="muted mt-1">Choose the script structure.</div>
+                        </div>
+                    </div>
+                `;
+            } else if (task === 'Blog Outline') {
+                html += `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Number of sections/headings</label>
+                            <input type="number" id="outlineSections" class="input" placeholder="e.g., 5" min="1" value="5" />
+                            <div class="muted mt-1">How many headings/sections shall the outline include?</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Include intro & conclusion?</label>
+                            <select id="outlineIntroConclusion" class="select">
+                                <option value="Yes" selected>Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            } else if (task === 'Article') {
+                html += `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Target word count</label>
+                            <input type="number" id="articleWordCount" class="input" placeholder="e.g., 800" min="100" value="800" />
+                            <div class="muted mt-1">Approximate article length in words.</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Style</label>
+                            <select id="articleStyle" class="select">
+                                <option value="Informative">Informative</option>
+                                <option value="Opinion">Opinion</option>
+                                <option value="How-to">How-to</option>
+                                <option value="Listicle">Listicle</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            } else if (task === 'Social Caption') {
+                html += `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Max characters</label>
+                            <input type="number" id="captionMaxChars" class="input" placeholder="e.g., 280" min="10" value="220" />
+                            <div class="muted mt-1">Max characters for each caption variation.</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Include hashtags?</label>
+                            <select id="captionHashtags" class="select">
+                                <option value="Yes" selected>Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            } else if (task === 'Multi-Platform') {
+                html += `
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-200">Platforms (generate tailored variations for)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="inline-flex items-center gap-2"><input type="checkbox" class="platformCheck" value="Instagram" checked> Instagram</label>
+                            <label class="inline-flex items-center gap-2"><input type="checkbox" class="platformCheck" value="LinkedIn" checked> LinkedIn</label>
+                            <label class="inline-flex items-center gap-2"><input type="checkbox" class="platformCheck" value="Twitter" checked> Twitter</label>
+                            <label class="inline-flex items-center gap-2"><input type="checkbox" class="platformCheck" value="TikTok"> TikTok</label>
+                            <label class="inline-flex items-center gap-2"><input type="checkbox" class="platformCheck" value="YouTube"> YouTube</label>
+                            <label class="inline-flex items-center gap-2"><input type="checkbox" class="platformCheck" value="Generic"> Generic</label>
+                        </div>
+                        <div class="muted">Checked platforms will get their own platform-appropriate variation(s).</div>
+                    </div>
+                `;
+            } else if (task === 'Headline') {
+                html += `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Headline length</label>
+                            <select id="headlineLength" class="select">
+                                <option value="Short" selected>Short (<= 60 chars)</option>
+                                <option value="Medium">Medium (<= 90 chars)</option>
+                                <option value="Long">Long (<= 120 chars)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Number of headline variants</label>
+                            <input type="number" id="headlineVariants" class="input" min="1" max="10" value="3" />
+                        </div>
+                    </div>
+                `;
+            } else if (task === 'Meta') {
+                html += `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Meta description length</label>
+                            <select id="metaLength" class="select">
+                                <option value="Short" selected>Short (<= 120 chars)</option>
+                                <option value="Standard">Standard (<= 160 chars)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200">Target keyword</label>
+                            <input type="text" id="metaKeyword" class="input" placeholder="primary keyword" />
+                        </div>
+                    </div>
+                `;
+            } else if (task === 'Polish') {
+                html += `
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-200">Original text to polish</label>
+                        <textarea id="polishText" class="input min-h-[100px] resize-none" placeholder="Paste the text you want improved here..."></textarea>
+                        <div class="muted mt-1">The assistant will return improved versions. No emojis in the output are allowed.</div>
+                    </div>
+                `;
+            } else {
+                html += `<div class="muted">No additional options for this task.</div>`;
+            }
+
+            taskOptionsContainer.innerHTML = html;
+        }
+
+        // initial render:
+        renderTaskOptions(document.getElementById('task').value);
+
+        document.getElementById('task').addEventListener('change', (e) => {
+            renderTaskOptions(e.target.value);
+        });
+
         // ---------- NEW generateContent function ----------
-        async function generateContent(formData) {
-            // Build the model prompt (same as before)
-            const prompt = `You are an expert content-writing assistant for creators. Your job is to generate ready-to-publish content for social media, blogs, newsletters, and short video scripts.
+        async function generateContent(payloadInputs) {
+            // Build the model prompt with strict instructions (no emojis, strict JSON)
+            // We include task-specific parameters and language.
+            const safetyInstructions = [
+                "ALWAYS return one single valid JSON object and NOTHING else (no extra text, no markdown).",
+                "The JSON MUST exactly follow the schema described below.",
+                "Do NOT include emojis or emoji characters in any field of the output.",
+                "If uncertain about a factual claim, set safety.needs_verification = true and avoid inventing facts.",
+                "If the user requests medical, legal, or financial advice, set safety.refusal = true, include refusal_reason, and return no variations.",
+                "Keep all text appropriate for public sharing (no profanity, hate, or instructions for wrongdoing).",
+                "Ensure generated text matches the requested language exactly.",
+                "For 'Polish' tasks, use the provided text in context and return improved versions only."
+            ].join(' ');
+
+            // Build a structured "instructions" object to include useful metadata for the model
+            const instructionMetadata = {
+                task: payloadInputs.task,
+                language: payloadInputs.language,
+                platform: payloadInputs.platform,
+                tone: payloadInputs.tone,
+                length: payloadInputs.length,
+                variations_requested: payloadInputs.variations_requested
+            };
+
+            // Compose the final prompt
+            const prompt = `
+You are an expert content-writing assistant for creators. Follow these RULES and produce exactly the requested output.
 
 RULES:
-1. ALWAYS return one single valid JSON object and NOTHING else (no extra text, no markdown).
-2. The JSON MUST exactly follow the schema below.
-3. Produce exactly ${formData.variations_requested} variations.
-4. If "context" contains a URL, create a 1–2 sentence summary of the page and add that URL into safety.citation_urls.
-5. If uncertain about a factual claim, set safety.needs_verification=true and avoid inventing facts.
-6. If the user requests medical, legal, or financial advice, set safety.refusal=true, include refusal_reason, and return no variations.
-7. Keep all text appropriate for public social media (no profanity, hate, or instructions for wrongdoing).
-8. Use platform-appropriate tone, length, formatting, and CTAs.
-9. For "Polish" tasks, use the provided text in context and return improved versions.
+${safetyInstructions}
 
-INPUT VARIABLES:
-- task: ${formData.task}
-- context: ${formData.context}
-- platform: ${formData.platform}
-- keywords: ${formData.keywords}
-- tone: ${formData.tone}
-- length: ${formData.length}
-- constraints: ${formData.constraints}
-- brand_voice: ${formData.brand_voice}
-- variations_requested: ${formData.variations_requested}
+INPUT (JSON):
+${JSON.stringify(instructionMetadata, null, 2)}
+Additional task parameters: ${JSON.stringify(payloadInputs.taskParams || {}, null, 2)}
+User context: ${payloadInputs.context || ""}
 
-REQUIRED JSON SCHEMA:
+REQUIRED JSON SCHEMA (RETURN EXACTLY THIS SCHEMA AS A SINGLE JSON OBJECT, NO EXTRA TEXT):
 {
   "meta": {
     "task": "string",
-    "platform": "string", 
+    "platform": "string",
+    "language": "string",
     "tone": "string",
     "length": "string",
     "variations_requested": "integer",
     "generated_at": "string (ISO 8601 UTC)"
   },
-  "summary": "string (<=2 sentences; if URL present summarize page)",
+  "summary": "string (<=2 sentences; if URL present summarize page) - NO EMOJI",
   "variations": [
     {
       "id": "string (v1, v2, ...)",
       "title": "string (short label)",
-      "text": "string (the generated content)",
+      "text": "string (the generated content) - NO EMOJI",
       "character_count": "integer",
       "recommended_hashtags": ["string"],
       "cta": "string",
@@ -460,59 +654,66 @@ REQUIRED JSON SCHEMA:
   "safety": {
     "refusal": "boolean",
     "refusal_reason": "string",
-    "needs_verification": "boolean", 
+    "needs_verification": "boolean",
     "citation_urls": ["string"]
   }
 }
 
-Generate content now following all the rules above. Return ONLY the JSON object.`;
+Produce exactly ${payloadInputs.variations_requested} variations. Ensure the output is in ${payloadInputs.language}. Do NOT include emojis. Return ONLY the JSON object.
+`;
 
-            // Payload we'll send to our backend (backend will add Authorization using env var)
-            const payload = {
+            // Send to backend which should forward to OpenAI (backend holds the key)
+            const apiPayload = {
                 model: 'gpt-4o-mini',
                 messages: [{ role: 'user', content: prompt }],
-                temperature: 0.7,
+                temperature: 0.6,
                 max_tokens: 2000
             };
 
-            // Call your backend endpoint (the backend MUST hold the OpenAI key)
             const res = await fetch(BACKEND_ENDPOINT, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(apiPayload)
             });
 
             if (!res.ok) {
-                const text = await res.text().catch(()=>'<no body>');
-                throw new Error(`Backend error ${res.status}: ${text}`);
+                const t = await res.text().catch(()=>'<no body>');
+                throw new Error(`Backend error ${res.status}: ${t}`);
             }
 
-            // backend expected to forward OpenAI's JSON response
             const raw = await res.json();
 
-            // Try to extract the assistant's content (handle a few shapes)
-            let modelContent = null;
+            // try to robustly extract model text
+            let modelText = null;
             if (raw.choices && raw.choices[0] && raw.choices[0].message && raw.choices[0].message.content) {
-                modelContent = raw.choices[0].message.content;
+                modelText = raw.choices[0].message.content;
             } else if (raw.choices && raw.choices[0] && raw.choices[0].text) {
-                modelContent = raw.choices[0].text;
+                modelText = raw.choices[0].text;
             } else if (raw.content) {
-                modelContent = raw.content;
+                modelText = raw.content;
             } else {
-                // If backend forwarded raw OpenAI object under data or similar
-                // try to stringify for debugging
                 throw new Error('No model content found in backend response.');
             }
 
-            // Model was instructed to return JSON text — parse it
+            // Parse JSON (model was instructed to return pure JSON)
             try {
-                const parsed = JSON.parse(modelContent);
+                const parsed = JSON.parse(modelText);
                 return parsed;
             } catch (err) {
-                // If parse fails, bubble up model content for debugging
-                throw new Error('Model returned non-JSON content. Raw content: ' + modelContent);
+                // If parse fails, try to find JSON substring (last-resort) and strip emojis
+                const possibleJson = modelText.trim();
+                try {
+                    const start = possibleJson.indexOf('{');
+                    const end = possibleJson.lastIndexOf('}');
+                    if (start >= 0 && end > start) {
+                        const substr = possibleJson.slice(start, end + 1);
+                        const parsed = JSON.parse(substr);
+                        return parsed;
+                    }
+                } catch (_) {}
+                throw new Error('Model returned non-JSON content. Raw content: ' + modelText);
             }
         }
 
@@ -522,18 +723,20 @@ Generate content now following all the rules above. Return ONLY the JSON object.
             let html = '';
 
             // Summary
+            const summaryClean = stripEmojis(content.summary || '');
             html += `
                 <div class="content-card">
                     <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Content Summary
                     </h3>
-                    <p class="text-white text-lg leading-relaxed">${escapeHtml(content.summary || '')}</p>
+                    <p class="text-white text-lg leading-relaxed">${escapeHtml(summaryClean)}</p>
                     ${content.safety && content.safety.needs_verification ? '<div class="mt-4"><span class="badge">⚠️ Needs Verification</span></div>' : ''}
+                    <div class="mt-4 text-xs text-slate-400">Language: ${escapeHtml((content.meta && content.meta.language) || '—')}</div>
                 </div>
             `;
 
-            // SEO
+            // SEO block
             html += `
                 <div class="content-card">
                     <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
@@ -543,11 +746,11 @@ Generate content now following all the rules above. Return ONLY the JSON object.
                     <div class="space-y-4">
                         <div class="p-4 bg-slate-800/50 rounded-lg">
                             <label class="text-sm font-semibold text-slate-300 mb-2 block">Suggested Headline</label>
-                            <p class="text-white font-medium">${escapeHtml((content.seo && content.seo.suggested_headline) || '')}</p>
+                            <p class="text-white font-medium">${escapeHtml(stripEmojis((content.seo && content.seo.suggested_headline) || ''))}</p>
                         </div>
                         <div class="p-4 bg-slate-800/50 rounded-lg">
                             <label class="text-sm font-semibold text-slate-300 mb-2 block">Meta Description</label>
-                            <p class="text-white">${escapeHtml((content.seo && content.seo.meta_description) || '')}</p>
+                            <p class="text-white">${escapeHtml(stripEmojis((content.seo && content.seo.meta_description) || ''))}</p>
                         </div>
                     </div>
                 </div>
@@ -555,15 +758,21 @@ Generate content now following all the rules above. Return ONLY the JSON object.
 
             // Variations
             (content.variations || []).forEach((variation, index) => {
-                const hashtagsHtml = (variation.recommended_hashtags || []).map(h => `<span class="badge">#${escapeHtml(h)}</span>`).join('');
+                // sanitize fields
+                const varText = stripEmojis(variation.text || '');
+                const varTitle = stripEmojis(variation.title || (`Variation ${index+1}`));
+                const hashtagsHtml = (variation.recommended_hashtags || []).map(h => `<span class="badge">${escapeHtml(h.startsWith('#') ? h : '#'+h)}</span>`).join('');
+                const varId = escapeHtml(variation.id || ('v' + (index+1)));
+                const charCount = Number(variation.character_count || (varText.length)) || varText.length;
+
                 html += `
                     <div class="content-card">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-xl font-bold text-blue-400 flex items-center gap-2">
                                 <div class="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-sm">${index + 1}</div>
-                                ${escapeHtml(variation.title || `Variation ${index+1}`)}
+                                ${escapeHtml(varTitle)}
                             </h3>
-                            <button id="copy-${escapeHtml(variation.id || ('v' + (index+1)))}" class="btn btn-outline" onclick="copyToClipboard(\`${escapeBackticks(variation.text || '')}\`, '${escapeHtml(variation.id || ('v' + (index+1)))}')">
+                            <button id="copy-${varId}" class="btn btn-outline" onclick="copyToClipboard(\`${escapeBackticks(varText)}\`, '${varId}')">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                 <span>Copy</span>
                             </button>
@@ -571,27 +780,27 @@ Generate content now following all the rules above. Return ONLY the JSON object.
 
                         <div class="space-y-6">
                             <div class="p-6 bg-slate-900/50 rounded-xl border border-slate-700">
-                                <p class="text-white text-lg leading-relaxed whitespace-pre-wrap">${escapeHtml(variation.text || '')}</p>
+                                <p class="text-white text-lg leading-relaxed whitespace-pre-wrap">${escapeHtml(varText)}</p>
                             </div>
 
                             <div class="flex flex-wrap gap-2">${hashtagsHtml}</div>
 
                             ${variation.cta ? `
                                 <div class="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
-                                    <label class="text-xs font-semibold text-purple-300 mb-2 block">💡 Call to Action</label>
-                                    <p class="text-sm text-white font-medium">${escapeHtml(variation.cta)}</p>
+                                    <label class="text-xs font-semibold text-purple-300 mb-2 block">Call to Action</label>
+                                    <p class="text-sm text-white font-medium">${escapeHtml(stripEmojis(variation.cta))}</p>
                                 </div>
                             ` : ''}
 
                             <div class="flex justify-between items-center text-xs text-slate-400 pt-4 border-t border-slate-700">
                                 <span class="flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
-                                    ${escapeHtml(String(variation.character_count || '—'))} characters
+                                    ${escapeHtml(String(charCount || '—'))} characters
                                 </span>
                                 ${variation.notes_for_designer ? `
                                     <span class="flex items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-                                        ${escapeHtml(variation.notes_for_designer)}
+                                        ${escapeHtml(stripEmojis(variation.notes_for_designer))}
                                     </span>
                                 ` : ''}
                             </div>
@@ -600,71 +809,152 @@ Generate content now following all the rules above. Return ONLY the JSON object.
                 `;
             });
 
+            // Safety block
+            html += `
+                <div class="content-card">
+                    <h3 class="text-lg font-bold text-rose-400 mb-2">Safety</h3>
+                    <div class="text-sm text-slate-300">
+                        <div>Refusal: ${content.safety && content.safety.refusal ? 'Yes' : 'No'}</div>
+                        ${content.safety && content.safety.refusal ? `<div>Reason: ${escapeHtml(content.safety.refusal_reason || '—')}</div>` : ''}
+                        <div>Needs verification: ${content.safety && content.safety.needs_verification ? 'Yes' : 'No'}</div>
+                        ${content.safety && content.safety.citation_urls && content.safety.citation_urls.length ? `<div>Sources: ${content.safety.citation_urls.map(u => escapeHtml(u)).join(', ')}</div>` : ''}
+                    </div>
+                </div>
+            `;
+
             container.innerHTML = html;
             container.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // small helpers to avoid injecting raw HTML (simple escaping)
-        function escapeHtml(str) {
-            if (str == null) return '';
-            return String(str).replace(/[&<>"'`]/g, function(s) {
-                return {
-                    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;','`':'&#96;'
-                }[s];
-            });
-        }
+        // helper for escape backticks for inline template usage
         function escapeBackticks(str) {
             if (str == null) return '';
-            return String(str).replace(/`/g, '\\`').replace(/\$\{/g,'\\${');
+            return String(str).replace(/`/g, '\\`').replace(/\$\{/g,'\\${').replace(/\\/g,'\\\\');
         }
 
-        // Form submission
+        // Form submission wiring
         document.getElementById('contentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const formData = {
-                task: document.getElementById('task').value,
-                context: document.getElementById('context').value,
-                platform: selectedPlatform,
-                keywords: document.getElementById('keywords').value,
-                tone: document.getElementById('tone').value,
-                length: document.getElementById('length').value,
-                constraints: '',
-                brand_voice: '',
-                variations_requested: parseInt(document.getElementById('variations').value || '1', 10)
-            };
+            const task = document.getElementById('task').value;
+            const context = document.getElementById('context').value || '';
+            const tone = document.getElementById('tone').value;
+            const length = document.getElementById('length').value;
+            const variations = parseInt(document.getElementById('variations').value || '1', 10);
+            const keywords = document.getElementById('keywords').value || '';
+            const language = document.getElementById('language').value;
+            const platformVal = selectedPlatform || document.getElementById('platform').value;
 
-            if (!formData.context.trim()) {
+            // gather task-specific params
+            const taskParams = {};
+
+            if (task === 'Script') {
+                const charCountEl = document.getElementById('scriptCharacterCount');
+                const formatEl = document.getElementById('scriptFormat');
+                taskParams.script_character_target = charCountEl ? Number(charCountEl.value || 800) : 800;
+                taskParams.script_format = formatEl ? formatEl.value : 'Narration';
+            } else if (task === 'Blog Outline') {
+                const sectionsEl = document.getElementById('outlineSections');
+                const introEl = document.getElementById('outlineIntroConclusion');
+                taskParams.sections = sectionsEl ? Number(sectionsEl.value || 5) : 5;
+                taskParams.intro_and_conclusion = introEl ? introEl.value === 'Yes' : true;
+            } else if (task === 'Article') {
+                const wcEl = document.getElementById('articleWordCount');
+                const styleEl = document.getElementById('articleStyle');
+                taskParams.word_count = wcEl ? Number(wcEl.value || 800) : 800;
+                taskParams.article_style = styleEl ? styleEl.value : 'Informative';
+            } else if (task === 'Social Caption') {
+                const maxCharsEl = document.getElementById('captionMaxChars');
+                const hashtagsEl = document.getElementById('captionHashtags');
+                taskParams.max_characters = maxCharsEl ? Number(maxCharsEl.value || 220) : 220;
+                taskParams.include_hashtags = hashtagsEl ? (hashtagsEl.value === 'Yes') : true;
+            } else if (task === 'Multi-Platform') {
+                const checks = Array.from(document.querySelectorAll('.platformCheck')).filter(c => c.checked).map(c => c.value);
+                taskParams.platforms = checks.length ? checks : ['LinkedIn', 'Instagram', 'Twitter'];
+            } else if (task === 'Headline') {
+                const hlLen = document.getElementById('headlineLength');
+                const hlVar = document.getElementById('headlineVariants');
+                taskParams.headline_length = hlLen ? hlLen.value : 'Short';
+                taskParams.headline_variants = hlVar ? Number(hlVar.value || 3) : 3;
+            } else if (task === 'Meta') {
+                const ml = document.getElementById('metaLength');
+                const mk = document.getElementById('metaKeyword');
+                taskParams.meta_length = ml ? ml.value : 'Standard';
+                taskParams.meta_keyword = mk ? mk.value : '';
+            } else if (task === 'Polish') {
+                const ptext = document.getElementById('polishText');
+                taskParams.original_text = ptext ? ptext.value : '';
+            }
+
+            // If "Polish" ensure there is original text
+            if (task === 'Polish' && (!taskParams.original_text || !taskParams.original_text.trim())) {
+                showToast('Please provide the text to polish.', 'error');
+                return;
+            }
+
+            if (!context.trim() && (task !== 'Polish' || (task === 'Polish' && !taskParams.original_text.trim()))) {
                 showToast('Please provide context for content generation.', 'error');
                 return;
             }
 
+            const formData = {
+                task,
+                context,
+                platform: platformVal,
+                keywords,
+                tone,
+                length,
+                constraints: '',
+                brand_voice: '',
+                variations_requested: variations,
+                language,
+                taskParams
+            };
+
             // Update button UI
             const generateBtn = document.getElementById('generateBtn');
-            const sparkles = document.getElementById('sparkles');
             const spinner = document.getElementById('spinner');
             const btnText = document.getElementById('btnText');
 
             generateBtn.disabled = true;
-            sparkles.classList.add('hidden');
             spinner.classList.remove('hidden');
             btnText.textContent = 'Generating...';
 
             try {
                 const content = await generateContent(formData);
-                generatedContent = content;
+                // sanitize: remove emojis from all text fields as an extra safeguard
+                sanitizeContentFields(content);
                 renderResults(content);
-                showToast(`Successfully generated ${content.variations ? content.variations.length : 0} content variations!`, 'success');
+                showToast(`Successfully generated ${content.variations ? content.variations.length : 0} variations.`, 'success');
             } catch (error) {
                 console.error('Error generating content:', error);
                 showToast(error.message || 'Failed to generate content. Please try again.', 'error');
             } finally {
                 generateBtn.disabled = false;
-                sparkles.classList.remove('hidden');
                 spinner.classList.add('hidden');
                 btnText.textContent = 'Generate Content';
             }
         });
+
+        // sanitize entire content object by removing emojis from key text fields
+        function sanitizeContentFields(content) {
+            if (!content) return;
+            if (content.summary) content.summary = stripEmojis(content.summary);
+            if (content.seo) {
+                if (content.seo.suggested_headline) content.seo.suggested_headline = stripEmojis(content.seo.suggested_headline);
+                if (content.seo.meta_description) content.seo.meta_description = stripEmojis(content.seo.meta_description);
+            }
+            if (Array.isArray(content.variations)) {
+                content.variations.forEach(v => {
+                    if (v.text) v.text = stripEmojis(v.text);
+                    if (v.title) v.title = stripEmojis(v.title);
+                    if (v.cta) v.cta = stripEmojis(v.cta);
+                    if (v.notes_for_designer) v.notes_for_designer = stripEmojis(v.notes_for_designer);
+                });
+            }
+            return content;
+        }
+
     </script>
 </body>
 </html>
