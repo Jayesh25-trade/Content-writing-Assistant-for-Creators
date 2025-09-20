@@ -18,7 +18,6 @@ exports.handler = async function (event, context) {
   }
 
   try {
-    // Only allow POST
     if (event.httpMethod !== 'POST') {
       return {
         statusCode: 405,
@@ -27,43 +26,31 @@ exports.handler = async function (event, context) {
       };
     }
 
-    // Parse JSON body
     let body;
     try {
       body = event.body ? JSON.parse(event.body) : {};
     } catch (err) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         body: JSON.stringify({ error: 'Invalid JSON body' })
       };
     }
 
-    // Validate input
     if (!body.messages && !body.prompt) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         body: JSON.stringify({ error: 'Missing prompt or messages in request body' })
       };
     }
 
-    // Get API key
     const OPENAI_KEY = process.env.OPENAI_API_KEY;
     if (!OPENAI_KEY) {
       console.warn('OPENAI_API_KEY not set in environment');
       return {
         statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         body: JSON.stringify({ error: 'Server configuration error: OPENAI_API_KEY not set' })
       };
     }
@@ -76,7 +63,6 @@ exports.handler = async function (event, context) {
       max_tokens: body.max_tokens || 1200
     };
 
-    // Forward request to OpenAI API
     const resp = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -87,12 +73,14 @@ exports.handler = async function (event, context) {
     });
 
     const text = await resp.text();
-    let responseBody;
+    const contentType = resp.headers.get('content-type') || 'text/plain';
 
+    // If OpenAI returned non-JSON (error page) just forward text
+    let responseBody;
     try {
       responseBody = JSON.parse(text);
     } catch {
-      responseBody = { raw: text }; // Forward raw text if not JSON
+      responseBody = { raw: text };
     }
 
     return {
@@ -103,15 +91,11 @@ exports.handler = async function (event, context) {
       },
       body: JSON.stringify(responseBody)
     };
-
   } catch (err) {
     console.error('Function error', err);
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: err.message || 'Unknown server error' })
     };
   }
