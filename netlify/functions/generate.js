@@ -1,78 +1,87 @@
 // netlify/functions/generate.js
-// Netlify Function: forwards request to OpenAI Chat Completions
-// Requires: environment variable OPENAI_API_KEY
-// Handles: CORS preflight and proper JSON responses
+// Netlify Function: forward request to OpenAI Chat Completions
+// Expects: POST with JSON body { prompt, messages, model, temperature, max_tokens, ... }
+// Environment variable: OPENAI_API_KEY
 
 exports.handler = async function (event, context) {
-  // Handle CORS preflight
-  if (event.httpMethod === "OPTIONS") {
+  // Basic CORS preflight handling
+  if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 204,
       headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Methods": "POST, OPTIONS"
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
-      body: ""
+      body: ''
     };
   }
 
   try {
-    if (event.httpMethod !== "POST") {
+    // Only allow POST
+    if (event.httpMethod !== 'POST') {
       return {
         statusCode: 405,
-        headers: {
-          "Allow": "POST",
-          "Access-Control-Allow-Origin": "*"
-        },
-        body: JSON.stringify({ error: "Method not allowed. Use POST." })
+        headers: { 'Allow': 'POST' },
+        body: JSON.stringify({ error: 'Method not allowed. Use POST.' })
       };
     }
 
+    // Parse JSON body
     let body;
     try {
       body = event.body ? JSON.parse(event.body) : {};
-    } catch {
+    } catch (err) {
       return {
         statusCode: 400,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: "Invalid JSON body" })
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ error: 'Invalid JSON body' })
       };
     }
 
+    // Validate input
     if (!body.messages && !body.prompt) {
       return {
         statusCode: 400,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: "Missing prompt or messages in request body" })
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ error: 'Missing prompt or messages in request body' })
       };
     }
 
+    // Get API key
     const OPENAI_KEY = process.env.OPENAI_API_KEY;
     if (!OPENAI_KEY) {
-      console.error("OPENAI_API_KEY not set in environment");
+      console.warn('OPENAI_API_KEY not set in environment');
       return {
         statusCode: 500,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: "Server configuration error: OPENAI_API_KEY not set" })
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ error: 'Server configuration error: OPENAI_API_KEY not set' })
       };
     }
 
     // Build OpenAI payload
     const payload = {
-      model: body.model || "gpt-4o-mini",
-      messages: body.messages || [{ role: "user", content: body.prompt }],
-      temperature: typeof body.temperature === "number" ? body.temperature : 0.6,
-      max_tokens: body.max_tokens || 2000,
-      top_p: body.top_p || 1,
-      presence_penalty: body.presence_penalty || 0
+      model: body.model || 'gpt-4o-mini',
+      messages: body.messages || [{ role: 'user', content: body.prompt }],
+      temperature: typeof body.temperature === 'number' ? body.temperature : 0.7,
+      max_tokens: body.max_tokens || 1200
     };
 
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
+    // Forward request to OpenAI API
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${OPENAI_KEY}`,
-        "Content-Type": "application/json"
+        'Authorization': `Bearer ${OPENAI_KEY}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     });
@@ -83,23 +92,27 @@ exports.handler = async function (event, context) {
     try {
       responseBody = JSON.parse(text);
     } catch {
-      responseBody = { raw: text };
+      responseBody = { raw: text }; // Forward raw text if not JSON
     }
 
     return {
-      statusCode: resp.status,
+      statusCode: resp.ok ? 200 : resp.status,
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify(responseBody)
     };
+
   } catch (err) {
-    console.error("Function error", err);
+    console.error('Function error', err);
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ error: err.message || "Unknown server error" })
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ error: err.message || 'Unknown server error' })
     };
   }
 };
